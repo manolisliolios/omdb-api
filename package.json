@@ -1,0 +1,18 @@
+{
+  "name": "omdb-api",
+  "version": "1.0.0",
+  "description": "An API to login and bookmark movies",
+  "main": "app.js",
+  "scripts": {
+    "dev": "",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Manolis Liolios",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0",
+    "morgan": "^1.10.0"
+  }
+}

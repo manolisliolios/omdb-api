@@ -15,5 +15,7 @@ app.use(logging('dev'));
 app.get('/', (req, res)=>{return res.status(200).send('OMDB API is up and running.');});
 
 
+app.use('/api/users', routes.user);
+
 
 module.exports = app;

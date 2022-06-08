@@ -1,5 +1,9 @@
-import user from "./user.route";
+import users from "./user.route";
+import bookmarks from "./bookmark.route";
+import movies from "./movies.route";
 
 export default{
-    user
+    users,
+    bookmarks,
+    movies
 }

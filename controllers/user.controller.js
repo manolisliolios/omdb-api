@@ -29,6 +29,9 @@ const login = async (req, res) => {
         const token = AuthHelper.generateAccessToken(user.id, '1d');
 
         return res.status(200).send({
+            fullName: user.fullName,
+            email: user.email,
+            id: user.id,
             token: token
         });
 
@@ -41,9 +44,16 @@ const login = async (req, res) => {
 };
 
 
+const validateEmailAddress = email => {
+    return /\w+@\w+\.\w{2,10}/.test(email)
+}
 const register = async ( req, res) => {
 
     if(!req.body.email || !req.body.password || !req.body.fullName){
+        return res.status(400).send(ErrorHelper.INVALID_REGISTRATION_FIELDS);
+    }
+
+    if(!validateEmailAddress(req.body.email)){
         return res.status(400).send(ErrorHelper.INVALID_REGISTRATION_FIELDS);
     }
 
@@ -56,14 +66,17 @@ const register = async ( req, res) => {
         }
 
         // hash user's password before inserting into db
-        user.password = AuthHelper.hashPassword(req.body.password);
+        user.password = await AuthHelper.hashPassword(req.body.password);
 
         const userObj = await models.user.create(user);
 
+        // generate a 1d access token for the user to automatically log in.
         const token = AuthHelper.generateAccessToken(userObj.id, '1d');
 
-
         return res.status(200).send({
+            fullName: userObj.fullName,
+            email: userObj.email,
+            id: userObj.id,
             token: token
         });
 

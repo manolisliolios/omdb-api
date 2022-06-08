@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         fullName: DataTypes.STRING,
         password: DataTypes.STRING, // password hash
+        googleLogin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        }
     });
 
     user.associate = models => {

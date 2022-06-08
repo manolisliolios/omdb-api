@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             primaryKey: true,
         },
-        movieId: DataTypes.INTEGER
+        movieId: DataTypes.STRING
     });
 
     bookmark.associate = models => {

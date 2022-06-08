@@ -44,5 +44,13 @@ export default{
         code: 12,
         message: 'You are not authorized to access or edit this resource.'
 
+    },
+    GOOGLE_LOGIN_SUPPORTED: {
+        code: 13,
+        message: 'You can only login to this account using your google account'
+    },
+    GOOGLE_LOGIN_NOT_SUPPORTED:{
+        code: 14,
+        message: 'You can\'t login to this account using google. Please use your password'
     }
 }

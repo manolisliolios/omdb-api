@@ -3,6 +3,10 @@ import {uuid} from "uuidv4"
 import AuthHelper from "../helpers/auth.helper";
 import models from "../models";
 
+import {OAuth2Client}  from 'google-auth-library';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
+
 const login = async (req, res) => {
 
 
@@ -21,6 +25,8 @@ const login = async (req, res) => {
         });
 
         if(!user) return res.status(400).send(ErrorHelper.USER_NOT_EXISTS);
+
+        if(user.googleLogin) return res.status(403).send(ErrorHelper.GOOGLE_LOGIN_SUPPORTED);
 
         // verify that passwords are the same.
         const isSamePassword = await AuthHelper.isSamePassword(req.body.password, user.password);
@@ -43,10 +49,10 @@ const login = async (req, res) => {
     }
 };
 
-
 const validateEmailAddress = email => {
     return /\w+@\w+\.\w{2,10}/.test(email)
 }
+
 const register = async ( req, res) => {
 
     if(!req.body.email || !req.body.password || !req.body.fullName){
@@ -94,7 +100,64 @@ const register = async ( req, res) => {
     }
 }
 
+const googleLogin = async (req, res) => {
+
+    try{
+
+        await verify(req.body.token).then(async googleUser =>{
+
+            let user = await models.user.findOne({
+                where:{
+                    email: googleUser.email.toLowerCase(),
+                }
+            });
+
+            if(!user){
+                // register user
+                const userObj = {
+                    id: uuid(),
+                    fullName: googleUser.given_name + ' ' + googleUser.family_name,
+                    email: googleUser.email.toLowerCase(),
+                    googleLogin: true
+                }
+
+                user = await models.user.create(userObj);
+            }
+
+            // if user has password access, he can't login using google.
+            if(!user.googleLogin) return res.status(403).send(ErrorHelper.GOOGLE_LOGIN_NOT_SUPPORTED);
+
+
+            const token = AuthHelper.generateAccessToken(user.id, '1d');
+
+            return res.status(200).send({
+                fullName: user.fullName,
+                email: user.email,
+                id: user.id,
+                token: token
+            });
+
+        }).catch(e=>{
+            console.log(e);
+        })
+    }catch(e){
+
+    }
+
+}
+
+async function verify(token) {
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+    });
+    const payload = ticket.getPayload();
+    return payload;
+    // If request specified a G Suite domain:
+    // const domain = payload['hd'];
+}
 module.exports = {
     login,
-    register
+    register,
+    googleLogin
 }

@@ -6,6 +6,6 @@ const router = Router();
 
 router.get('/', AuthHelper.verifyToken, BookmarkController.getUserBookmarks);
 router.post('/',AuthHelper.verifyToken, BookmarkController.addBookmark);
-router.delete('/:bookmarkId',AuthHelper.verifyToken, BookmarkController.removeBookmark);
+router.delete('/:movieId',AuthHelper.verifyToken, BookmarkController.removeBookmark);
 
 module.exports = router;

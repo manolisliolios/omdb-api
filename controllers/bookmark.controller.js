@@ -14,7 +14,7 @@ const addBookmark = async (req, res) => {
             }
         });
 
-        if(bookmarkExists > 0) return res.status(400).send(ErrorHelper.BOOKMARK_ALREADY_EXISTS);
+        if(bookmarkExists > 0) return res.status(200).send(ErrorHelper.BOOKMARK_ALREADY_EXISTS);
 
 
         const bookmark = await models.bookmark.create({
@@ -40,15 +40,12 @@ const removeBookmark = async (req, res) => {
 
     try{
 
-        const bookmark = await models.bookmark.findByPk(req.params.bookmarkId);
-
-
-        if(!bookmark) return res.status(400).send(ErrorHelper.BOOKMARK_NOT_EXISTS);
-
-        if(bookmark.userId !== req.user.id) return res.status(403).send(ErrorHelper.UNAUTHORIZED)
-
-        await bookmark.destroy();
-
+        await models.bookmark.destroy({
+            where:{
+                userId: req.user.id,
+                movieId: req.params.movieId
+            }
+        });
 
         return res.sendStatus(204);
     }catch(e){
@@ -62,12 +59,14 @@ const removeBookmark = async (req, res) => {
 const getUserBookmarks = async (req, res) => {
     try{
 
-        const bookmarks = await models.bookmark.findAll({
+        let bookmarks = await models.bookmark.findAll({
             where:{
                 userId: req.user.id
-            }
+            },
+            raw: true
         });
 
+        bookmarks = bookmarks.map(x => x.movieId);
         return res.status(200).send(bookmarks);
 
     }catch(e){
